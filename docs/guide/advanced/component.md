@@ -2,13 +2,13 @@
 
 ## Basic Usage
 
-Sometimes, we need to localize with a locale message that was included in a HTML tag or component. For example:
+Sometimes, we need to localize text that includes an HTML tag or a component. For example:
 
 ```html
 <p>I accept xxx <a href="/term">Terms of Service Agreement</a></p>
 ```
 
-In the above message, if you use `$t`, you will probably try to compose the following locale messages:
+In the above message, if you use `$t`, you might try to compose the following locale messages:
 
 ```js
 const messages = {
@@ -31,11 +31,11 @@ Output:
 <p>I accept xxx <a href="/term">Terms of Service Agreement</a></p>
 ```
 
-This is very cumbersome, and if you configure the `<a>` tag in a locale message, there is a possibility of XSS vulnerabilities due to localizing with `v-html="$t('term')"`.
+Manually splitting translations like this can be cumbersome. Moreover, including the `<a>` tag directly in a locale message and rendering it with `v-html="$t('term')"` poses a potential XSS security risk.
 
-You can avoid it using the Translation component (`i18n-t`). For example the below.
+To avoid this issue, you can use the Translation component (`i18n-t`). For example:
 
-Template:
+### Template:
 
 ```html
 <div id="app">
@@ -47,7 +47,7 @@ Template:
 </div>
 ```
 
-JavaScript:
+### JavaScript:
 
 ```js
 import { createApp } from 'vue'
@@ -75,7 +75,7 @@ app.use(i18n)
 app.mount('#app')
 ```
 
-The following output:
+### Output:
 
 ```html
 <div id="app">
@@ -87,27 +87,25 @@ The following output:
 </div>
 ```
 
-About the above example, see the [example](https://github.com/intlify/vue-i18n/blob/master/examples/legacy/components/translation.html)
+For more details, see the [example](https://github.com/intlify/vue-i18n/blob/master/examples/legacy/components/translation.html).
 
-The children of translation component are interpolated with locale message of `keypath` prop. In the above example,
+The child elements of the Translation component are interpolated within the locale message defined by the `keypath` prop. In the above example:
 
 :::v-pre
 `<a :href="url" target="_blank">{{ $t('tos') }}</a>`
 :::
 
-Is interpolated with `term` locale message.
+is interpolated with the `term` locale message.
 
-In the above example, the component interpolation follows the **list interpolation**. The children of translation component are interpolated by their order of appearance.
+The component interpolation follows **list interpolation**, meaning the child elements are interpolated based on their order of appearance.
 
-<!-- textlint-disable -->
 You can choose the root node element type by specifying a `tag` prop. If omitted, it defaults to [Fragments](https://v3-migration.vuejs.org/new/fragments.html).
-<!-- textlint-enable -->
 
-## Slots syntax usage
+## Slots Syntax Usage
 
-It’s more convenient to use the named slots syntax. For example the below:
+Using named slots syntax is often more convenient. For example:
 
-Template:
+### Template:
 
 ```html
 <div id="app">
@@ -124,7 +122,7 @@ Template:
 </div>
 ```
 
-JavaScript:
+### JavaScript:
 
 ```js
 import { createApp } from 'vue'
@@ -154,7 +152,7 @@ app.use(i18n)
 app.mount('#app')
 ```
 
-Outputs:
+### Output:
 
 ```html
 <div id="app">
@@ -166,7 +164,7 @@ Outputs:
 </div>
 ```
 
-You can also use the following slots shorthand in templates:
+Alternatively, you can use the shorthand syntax for named slots:
 
 ```html
 <div id="app">
@@ -184,14 +182,14 @@ You can also use the following slots shorthand in templates:
 ```
 
 :::warning LIMITATION
-:warning: In translation component, slots props are not supported.
+:warning: In the Translation component, slot props are not supported.
 :::
 
-### Pluralization Usage
+## Pluralization Usage
 
-You can use pluralization in Component interpolation by use `plural` prop. For example the below.
+To handle pluralization in component interpolation, use the `plural` prop. For example:
 
-Template:
+### Template:
 
 ```html
 <div id="app">
@@ -205,7 +203,7 @@ Template:
 </div>
 ```
 
-JavaScript:
+### JavaScript:
 
 ```js
 const { createApp, ref } = Vue
@@ -233,7 +231,8 @@ app.use(i18n)
 app.mount('#app')
 ```
 
-The following output:
+### Output:
+
 ```html
 <div id="app" data-v-app="">
   <!-- ... -->
@@ -242,25 +241,21 @@ The following output:
 </div>
 ```
 
-## Scope resolving
+## Scope Resolving
 
-The [Scope](../essentials/scope.md) resolving of Translation component is `parent` as default.
+The [Scope](../essentials/scope.md) resolving of the Translation component defaults to `parent`.
 
-It means that Translation component uses the scope that is enabled in the parent component that uses it.
+This means that the Translation component uses the scope enabled in the parent component. If the parent component calls `useI18n` with `useScope: 'global'`, it will use the Global Scope; otherwise, it will use the Local Scope of the parent component.
 
-If the parent component has `useI18n` in `useScope: 'global'`, it will use Global Scope, else if `useScope: 'local'`, it will use the Local Scope of the parent component.
-
-However, You sometimes meet the warning message on your browser console the following:
+However, you may sometimes see the following warning message in your browser console:
 
 ```
 [intlify] Not found parent scope. use the global scope.
 ```
 
-This message is displayed in the case that you have not run `useI18n` in the parent component that uses the Translation component.
+This warning appears when the parent component does not call `useI18n`, meaning there is no defined local scope.
 
-In that situation, the Scope of the Translation Component will be fallback to the global scope as said the warning message.
-
-A workaround to suppress this warning is to specify `global` as the `scope` property of Translation component.
+To suppress this warning, you can explicitly set `scope="global"` on the Translation component:
 
 ```html
 <i18n-t keypath="message.foo" scope="global">
@@ -269,5 +264,6 @@ A workaround to suppress this warning is to specify `global` as the `scope` prop
 ```
 
 :::tip NOTE
-This warning is not output to the browser console in production builds.
+This warning is not displayed in production builds.
 :::
+
